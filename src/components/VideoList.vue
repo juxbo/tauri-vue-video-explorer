@@ -1,12 +1,18 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1>{{ filepath }}</h1>
     <div v-if="load"><p>Loading</p></div>
     <div v-else>
-      <div v-for="f of files" :key="f">
+      <div v-for="f of files" :key="f.name">
         <p>{{ f.name }}</p>
-        <button type="button" @click="newPath(f.path)">Test</button>
-        <video-player v-if="!f.children" :path="f.path" />
+        <div>
+          <router-link v-if="f.children" :to="'/dirs/' + encodeURI(f.path)">
+            go deeper
+          </router-link>
+          <router-link v-else :to="'/files/' + encodeURI(f.path)">
+            listen
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -16,10 +22,10 @@
 import { onMounted, ref } from "vue";
 import { fs } from "@tauri-apps/api";
 import { FileEntry } from "@tauri-apps/api/fs";
-import VideoPlayer from "./VideoPlayer.vue";
+import { useRoute } from "vue-router";
 
 export default {
-  components: { VideoPlayer },
+  components: {},
   name: "VideoList",
   props: {
     path: String,
@@ -27,14 +33,16 @@ export default {
   setup(props: any) {
     const files = ref<FileEntry[]>([]);
     const load = ref(true);
-    const urltest = ref();
+    const filepath = ref(props.path);
 
-    const newPath = (path: string) => {
-      console.log(path);
-    };
+    const route = useRoute();
+    const routePath = route.params.path;
+    if (routePath) {
+      filepath.value = routePath;
+    }
 
     const fetchData = () => {
-      const res = fs.readDir(props.path);
+      const res = fs.readDir(filepath.value);
 
       res
         .then((v) => {
@@ -52,7 +60,10 @@ export default {
       fetchData();
     });
 
-    return { files, load, urltest, newPath };
+    return { files, load, filepath };
   },
 };
 </script>
+
+function useRoute() { throw new Error('Function not implemented.'); } function
+useRoute() { throw new Error('Function not implemented.'); }

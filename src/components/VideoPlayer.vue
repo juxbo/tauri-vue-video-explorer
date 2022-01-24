@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ path }}</h1>
+    <h1>{{ filepath }}</h1>
     <div v-if="load"><p>Loading</p></div>
     <div v-else>
       <div>
@@ -13,6 +13,7 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
 import { fs } from "@tauri-apps/api";
+import { useRoute } from "vue-router";
 
 export default {
   name: "VideoList",
@@ -22,19 +23,22 @@ export default {
   setup(props: any) {
     const load = ref(true);
     const urltest = ref();
+    const filepath = ref(props.path);
+
+    const route = useRoute();
+    const routePath = route.params.file;
+    if (routePath) {
+      filepath.value = routePath;
+    }
 
     const fetchData = () => {
-      const test = fs.readBinaryFile(props.path);
+      const test = fs.readBinaryFile(filepath.value);
       test
         .then((x) => {
-          console.log(x);
-          console.log(Uint8Array.from(x));
           const blobo = new Blob([Uint8Array.from(x)], {
             type: "octet/stream",
           });
-          console.log(blobo);
           const url = URL.createObjectURL(blobo);
-          console.log(url);
           urltest.value = url;
           load.value = false;
         })
@@ -48,7 +52,7 @@ export default {
       fetchData();
     });
 
-    return { load, urltest };
+    return { load, urltest, filepath };
   },
 };
 </script>

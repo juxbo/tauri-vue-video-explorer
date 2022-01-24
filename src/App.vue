@@ -1,18 +1,9 @@
 <template>
-  <video-list path="E:/Musik" />
+  <div id="nav">
+    <a @click="$router.go(-1)" href="#"> back </a>
+  </div>
+  <router-view :key="$route.path" />
 </template>
-
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import VideoList from "./components/VideoList.vue";
-
-@Options({
-  components: {
-    VideoList,
-  },
-})
-export default class App extends Vue {}
-</script>
 
 <style>
 #app {
@@ -21,6 +12,18 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
 }
 </style>
