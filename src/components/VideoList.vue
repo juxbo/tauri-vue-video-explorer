@@ -1,10 +1,12 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <div>
+    <div v-if="load"><p>Loading</p></div>
+    <div v-else>
       <div v-for="f of files" :key="f">
-        <p>{{ f }}</p>
-        <div><p>video</p></div>
+        <p>{{ f.name }}</p>
+        <button type="button" @click="newPath(f.path)">Test</button>
+        <video-player v-if="!f.children" :path="f.path" />
       </div>
     </div>
   </div>
@@ -13,38 +15,44 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
 import { fs } from "@tauri-apps/api";
-export interface File {
-  name: String;
-}
+import { FileEntry } from "@tauri-apps/api/fs";
+import VideoPlayer from "./VideoPlayer.vue";
 
 export default {
+  components: { VideoPlayer },
   name: "VideoList",
   props: {
-    msg: String,
+    path: String,
   },
-  setup() {
-    const files = ref<File[]>([]);
+  setup(props: any) {
+    const files = ref<FileEntry[]>([]);
     const load = ref(true);
+    const urltest = ref();
+
+    const newPath = (path: string) => {
+      console.log(path);
+    };
 
     const fetchData = () => {
-      const res = fs.readDir("E:/Musik");
+      const res = fs.readDir(props.path);
 
       res
         .then((v) => {
+          files.value = v;
           load.value = false;
-          return v;
         })
         .catch((err) => {
           alert(err);
         });
-      return [];
+
+      return;
     };
 
     onMounted(() => {
-      files.value = fetchData();
+      fetchData();
     });
 
-    return { files };
+    return { files, load, urltest, newPath };
   },
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <VideoList msg="Welcome to Your Vue.js + TypeScript App" />
+  <video-list path="E:/Musik" />
 </template>
 
 <script lang="ts">
