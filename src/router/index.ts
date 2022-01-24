@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import Home from "@/components/Home.vue";
-import VideoList from "@/components/VideoList.vue";
-import VideoPlayer from "@/components/VideoPlayer.vue";
+import Home from "@/views/Home.vue";
+import VideoList from "@/views/VideoList.vue";
+import VideoPlayer from "@/views/VideoPlayer.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "/dirs/" + encodeURI("E:\\Musik"),
+    name: "Home",
+    component: Home,
   },
   {
     path: "/dirs/:path",

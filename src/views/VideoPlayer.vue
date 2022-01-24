@@ -1,10 +1,12 @@
 <template>
   <div>
-    <h1>{{ filepath }}</h1>
+    <p class="text-lg font-bold">{{ filepath }}</p>
     <div v-if="load"><p>Loading</p></div>
     <div v-else>
-      <div>
-        <video controls :src="urltest" />
+      <div class="p-2 mt-2 mb-2 flex place-content-center">
+        <video v-if="'video' === getType()" controls :src="urltest" />
+        <audio v-else-if="'audio' === getType()" controls :src="urltest" />
+        <img v-else-if="'img' === getType()" controls :src="urltest" />
       </div>
     </div>
   </div>
@@ -31,6 +33,20 @@ export default {
       filepath.value = routePath;
     }
 
+    const getType = () => {
+      const extension = filepath.value.split(".").pop().toLowerCase();
+      switch (extension) {
+        case "mp3":
+          return "audio";
+        case "png":
+        case "jpg":
+        case "jpeg":
+          return "img";
+        default:
+          return "video";
+      }
+    };
+
     const fetchData = () => {
       const test = fs.readBinaryFile(filepath.value);
       test
@@ -52,7 +68,7 @@ export default {
       fetchData();
     });
 
-    return { load, urltest, filepath };
+    return { load, urltest, filepath, getType };
   },
 };
 </script>
