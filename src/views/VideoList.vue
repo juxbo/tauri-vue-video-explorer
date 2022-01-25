@@ -54,8 +54,14 @@ export default {
         case "jpg":
         case "jpeg":
           return "view";
-        default:
+        case "mp4":
+        case "wmv":
+        case "mkv":
+        case "webm":
+        case "ts":
           return "watch";
+        default:
+          return "read";
       }
     };
 

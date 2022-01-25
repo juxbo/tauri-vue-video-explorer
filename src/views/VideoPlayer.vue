@@ -4,9 +4,10 @@
     <div v-if="load"><p>Loading</p></div>
     <div v-else>
       <div class="p-2 mt-2 mb-2 flex place-content-center">
-        <video v-if="'video' === getType()" controls :src="urltest" />
-        <audio v-else-if="'audio' === getType()" controls :src="urltest" />
-        <img v-else-if="'img' === getType()" controls :src="urltest" />
+        <video v-if="'video' === getType()" controls :src="convertedSrc" />
+        <audio v-else-if="'audio' === getType()" controls :src="convertedSrc" />
+        <img v-else-if="'img' === getType()" controls :src="convertedSrc" />
+        <p v-else-if="'text' === getType()">{{ text }}</p>
       </div>
     </div>
   </div>
@@ -14,7 +15,7 @@
 
 <script lang="ts">
 import { onMounted, ref } from "vue";
-import { fs } from "@tauri-apps/api";
+import { fs, tauri } from "@tauri-apps/api";
 import { useRoute } from "vue-router";
 
 export default {
@@ -26,6 +27,9 @@ export default {
     const load = ref(true);
     const urltest = ref();
     const filepath = ref(props.path);
+    const text = ref("");
+
+    const convertedSrc = ref("");
 
     const route = useRoute();
     const routePath = route.params.file;
@@ -42,25 +46,53 @@ export default {
         case "jpg":
         case "jpeg":
           return "img";
-        default:
+        case "mp4":
+        case "wmv":
+        case "mkv":
+        case "webm":
+        case "ts":
           return "video";
+        default:
+          return "text";
       }
     };
 
-    const fetchData = () => {
-      const test = fs.readBinaryFile(filepath.value);
+    const readText = () => {
+      const test = fs.readTextFile(filepath.value);
       test
-        .then((x) => {
-          const blobo = new Blob([Uint8Array.from(x)], {
-            type: "octet/stream",
-          });
-          const url = URL.createObjectURL(blobo);
-          urltest.value = url;
+        .then((val) => {
+          text.value = val;
           load.value = false;
         })
         .catch((err) => {
           alert(err);
         });
+    };
+
+    // XXX: This is not smart, use converted source instead
+    const readBinary = () => {
+      convertedSrc.value = tauri.convertFileSrc(filepath.value);
+      load.value = false;
+    };
+    //   const readBinary = () => {
+    //   const test = fs.readBinaryFile(filepath.value);
+
+    //   test
+    //     .then((x) => {
+    //       const blobo = new Blob([Uint8Array.from(x)], {
+    //         type: "octet/stream",
+    //       });
+    //       const url = URL.createObjectURL(blobo);
+    //       urltest.value = url;
+    //       load.value = false;
+    //     })
+    //     .catch((err) => {
+    //       alert(err);
+    //     });
+    // };
+
+    const fetchData = () => {
+      getType() === "text" ? readText() : readBinary();
       return;
     };
 
@@ -68,7 +100,7 @@ export default {
       fetchData();
     });
 
-    return { load, urltest, filepath, getType };
+    return { load, urltest, filepath, getType, text, convertedSrc };
   },
 };
 </script>
