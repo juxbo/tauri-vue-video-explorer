@@ -69,27 +69,11 @@ export default {
         });
     };
 
-    // XXX: This is not smart, use converted source instead
+    // Convert file path to local src url and let webview handle streaming
     const readBinary = () => {
       convertedSrc.value = tauri.convertFileSrc(filepath.value);
       load.value = false;
     };
-    //   const readBinary = () => {
-    //   const test = fs.readBinaryFile(filepath.value);
-
-    //   test
-    //     .then((x) => {
-    //       const blobo = new Blob([Uint8Array.from(x)], {
-    //         type: "octet/stream",
-    //       });
-    //       const url = URL.createObjectURL(blobo);
-    //       urltest.value = url;
-    //       load.value = false;
-    //     })
-    //     .catch((err) => {
-    //       alert(err);
-    //     });
-    // };
 
     const fetchData = () => {
       getType() === "text" ? readText() : readBinary();
